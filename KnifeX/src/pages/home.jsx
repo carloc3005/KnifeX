@@ -1,5 +1,5 @@
 import React from "react";
-import bannerImage from "../assets/banner/cs-banner.png";
+import bannerImage from "../assets/images/cs-banner.png";
 
 export default function Home() {
     return (
