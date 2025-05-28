@@ -1,10 +1,10 @@
-import React, { useState } from 'react'; // Import useState
+import React, { useState } from 'react'; 
 import { Link } from 'react-router-dom';
-import knifexLogo from '../assets/images/knifex_logo.svg'; // Import the logo
+import knifexLogo from '../assets/images/knifex_logo.svg'; 
 
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isKnivesDropdownOpen, setIsKnivesDropdownOpen] = useState(false); // State for knives dropdown
+    const [isKnivesDropdownOpen, setIsKnivesDropdownOpen] = useState(false); // The dropdown state for knives
 
     const knifeTypes = [
         "Filp Knife", "Gut Knife", "Huntsman Knife", "Karambit", "Kukri Knife",
@@ -20,19 +20,16 @@ export default function Navbar() {
         // Specific mappings for renamed folders or inconsistent naming
         if (knifeType === "Filp Knife") {
             imageNamePrefix = "flip";
-            // folderName remains "Filp Knife"
         } else if (knifeType === "M9 Bayonet") {
             imageNamePrefix = "m9";
-            folderName = "M9 Knife"; // Corrected folder name
+            folderName = "M9 Knife"; 
         } else if (knifeType === "Paracord Knift") {
             imageNamePrefix = "paracord";
-            // Assuming folder name is "Paracord Knift" as per knifeTypes array
-            // If folder is "Paracord Knife", update folderName here
-            folderName = "Paracord Knife"; // Corrected based on likely intention
+            folderName = "Paracord Knife"; 
         } else if (knifeType === "Shadow Daggers") {
-            imageNamePrefix = "sd"; // Default prefix
-            folderName = "SD Knife"; // Corrected folder name
-            specificImageName = "shadowdaggers-vanilla.png"; // Specific filename
+            imageNamePrefix = "sd"; 
+            folderName = "SD Knife";
+            specificImageName = "shadowdaggers-vanilla.png"; 
         } else if (knifeType === "Kukri Knife") {
             imageNamePrefix = "kukri";
             folderName = "Kukri Knife";
