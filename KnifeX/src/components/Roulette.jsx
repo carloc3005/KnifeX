@@ -159,11 +159,18 @@ const Roulette = () => {
     }, 4000); // Duration of the spin animation
   };
 
+  const closeModal = () => {
+    setSelectedCase(null);
+  };
+
   return (
-    <div className="w-full max-w-6xl mx-auto my-8 p-4 bg-gray-700 rounded-lg">
-      <div className="overflow-hidden relative h-56 border-2 border-yellow-400 rounded"> {/* Increased height h-40 to h-56 */}
+    <div className="w-full max-w-7xl mx-auto my-8 p-6 bg-slate-900 rounded-lg shadow-2xl">
+      <div className="overflow-hidden relative h-60 border-2 border-emerald-500 rounded-md">
         {/* Pointer */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 h-full w-1 bg-red-500"></div>
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 z-10 h-full w-1.5 bg-emerald-400"
+          style={{ boxShadow: '0 0 8px #34D399, 0 0 16px #34D399' }} // emerald-400 glow
+        ></div>
 
         <div
           ref={rouletteStripRef}
@@ -172,13 +179,13 @@ const Roulette = () => {
           style={{ transform: 'translateX(0px)' }} // Initial position before any spin
         >
           {rouletteItems.map((item, index) => (
-            <div 
-              key={index} 
-              className="flex-shrink-0 h-52 flex flex-col items-center justify-center p-2 bg-gray-600 rounded" /* Increased height h-36 to h-52 */
+            <div
+              key={index}
+              className="flex-shrink-0 h-56 flex flex-col items-center justify-center p-3 bg-slate-800 rounded-md" /* Increased height, new bg, padding */
               style={{ width: `${ROULETTE_ITEM_CONTENT_WIDTH}px`, margin: `0 ${ROULETTE_ITEM_MARGIN_X}px` }}
             >
-              <img src={item.image} alt={item.name} className="h-32 object-contain" /> {/* Increased image height h-20 to h-32 */}
-              <p className="text-sm text-center mt-1">{item.name.replace(' Case', '').replace(' Weapon Case', '')}</p> {/* Increased text size, removed truncate and w-full */}
+              <img src={item.image} alt={item.name} className="h-36 object-contain" /> {/* Increased image height */}
+              <p className="text-xs text-slate-300 text-center mt-2 font-medium w-full px-1 break-words">{item.name.replace(' Case', '').replace(' Weapon Case', '')}</p> {/* Adjusted text style */}
             </div>
           ))}
         </div>
@@ -186,15 +193,28 @@ const Roulette = () => {
       <button
         onClick={startSpin}
         disabled={spinning}
-        className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded disabled:bg-gray-500"
+        className="mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg text-lg disabled:bg-slate-600 disabled:text-slate-400 transition duration-150 ease-in-out"
       >
         {spinning ? 'Spinning...' : 'Spin to Win!'}
       </button>
       {selectedCase && !spinning && (
-        <div className="mt-4 p-4 bg-blue-500 text-white rounded text-center">
-          <h3 className="text-2xl font-bold">Congratulations!</h3>
-          <p className="text-lg">You won: {selectedCase.name}</p>
-          <img src={selectedCase.image} alt={selectedCase.name} className="h-32 mx-auto mt-2" />
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
+          <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-2xl text-center max-w-md w-full transform transition-all duration-300 ease-in-out scale-100 opacity-100">
+            <h3 className="text-3xl sm:text-4xl font-bold text-emerald-400 mb-4">Congratulations!</h3>
+            <p className="text-lg sm:text-xl text-slate-300 mb-2">You've unboxed:</p>
+            <p className="text-xl sm:text-2xl font-semibold text-white mb-5">{selectedCase.name}</p>
+            <img
+              src={selectedCase.image}
+              alt={selectedCase.name}
+              className="h-36 sm:h-40 w-auto object-contain mx-auto my-4 rounded-md"
+            />
+            <button
+              onClick={closeModal}
+              className="mt-6 w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-opacity-75"
+            >
+              Awesome!
+            </button>
+          </div>
         </div>
       )}
     </div>
