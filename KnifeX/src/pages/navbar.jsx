@@ -8,8 +8,8 @@ export default function Navbar() {
 
     const knifeTypes = [
         "Filp Knife", "Gut Knife", "Huntsman Knife", "Karambit", "Kukri Knife",
-        "M9 Bayonet", "Navaja Knife", "Nomad Knife", "Paracord Knift", "Shadow Daggers",
-        "Skeleton Knife", "Stiletto Knife", "Survival Knife", "Talon Knife", "Ursus Knife"
+        "M9 Bayonet", "Navaja Knife", "Nomad Knife", "Paracord Knife", // Corrected "Paracord Knift" to "Paracord Knife"
+        "Shadow Daggers", "Skeleton Knife", "Stiletto Knife", "Survival Knife", "Talon Knife", "Ursus Knife"
     ];
 
     const getKnifeImagePath = (knifeType) => {
@@ -23,28 +23,37 @@ export default function Navbar() {
         } else if (knifeType === "M9 Bayonet") {
             imageNamePrefix = "m9";
             folderName = "M9 Knife"; 
-        } else if (knifeType === "Paracord Knift") {
+        } else if (knifeType === "Paracord Knife") { // Corrected "Paracord Knift"
             imageNamePrefix = "paracord";
-            folderName = "Paracord Knife"; 
+            // folderName is already "Paracord Knife" due to knifeType
         } else if (knifeType === "Shadow Daggers") {
             imageNamePrefix = "sd"; 
             folderName = "SD Knife";
             specificImageName = "shadowdaggers-vanilla.png"; 
         } else if (knifeType === "Kukri Knife") {
             imageNamePrefix = "kukri";
-            folderName = "Kukri Knife";
-            specificImageName = "kukri-vailla.png"; // Specific filename with typo
+            // folderName is already "Kukri Knife"
+            specificImageName = "kukri-vailla.png"; // Assuming this typo 'vailla' is correct in the filename
         }
 
-        const imageName = specificImageName || `${imageNamePrefix}-Vanilla.png`;
+        // Default to Vanilla if not specified, ensure consistent casing for image name
+        // Ensure the final image name matches the actual file names (e.g., case sensitivity)
+        const imageName = specificImageName || `${imageNamePrefix}-vanilla.png`; // Standardized to lowercase vanilla
         const relativeAssetPath = `../assets/knives/${folderName}/${imageName}`;
 
         try {
             const imageUrl = new URL(relativeAssetPath, import.meta.url).href;
             return imageUrl;
         } catch (error) {
-            console.error(`Failed to create URL for knife image: ${knifeType} (folder: ${folderName}, image: ${imageName}) with path ${relativeAssetPath}. Error: ${error.message}`);
-            return ''; // Return an empty string or a placeholder path on error
+            console.error(
+                `Error constructing image URL for: ${knifeType}. \n` +
+                `Attempted Path: ${relativeAssetPath}\n` +
+                `Base URL (import.meta.url): ${import.meta.url}\n` +
+                `Folder Name: ${folderName}, Image Name: ${imageName}\n` +
+                `Error: ${error.message}`
+            );
+            // Return a path to a generic placeholder image you should add to your public folder
+            return '/placeholder-knife-image.png'; 
         }
     };
 
@@ -56,7 +65,7 @@ export default function Navbar() {
                         {/* Mobile menu button*/}
                         <button
                             type="button"
-                            className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset"
+                            className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-none focus:ring-inset" // Corrected focus:outline-hidden
                             aria-controls="mobile-menu"
                             aria-expanded={isMobileMenuOpen.toString()}
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -80,19 +89,22 @@ export default function Navbar() {
                             </Link>
                         </div>
                         <div className="hidden sm:ml-6 sm:block">
-                            <div className="flex space-x-4"> {/* Increased from space-x-1 to space-x-6 */}
+                            <div className="flex items-center space-x-4"> {/* Increased from space-x-1 to space-x-6 */}
                                 <Link to="/" className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Dashboard</Link>
                                 {/* Knives Dropdown - Desktop */}
                                 <div
-                                    className="relative"
+                                    className="relative flex items-center" // Added flex items-center here
                                     onMouseEnter={() => setIsKnivesDropdownOpen(true)}
                                     onMouseLeave={() => setIsKnivesDropdownOpen(false)}
                                 >
-                                    <button className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white focus:outline-none">
+                                    <Link
+                                        to="/knives" // Link to the main knives page
+                                        className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white focus:outline-none"
+                                    >
                                         Knives
-                                    </button>
+                                    </Link>
                                     {isKnivesDropdownOpen && (
-                                        <div className="absolute z-10 mt-2 w-56 rounded-md bg-black shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"> {/* Adjusted width w-56 for image */}
+                                        <div className="absolute top-full left-0 z-10 mt-1 w-56 rounded-md bg-black shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"> {/* Adjusted width w-56 for image */}
                                             <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                                 {knifeTypes.map((knifeType) => (
                                                     <Link
@@ -142,22 +154,38 @@ export default function Navbar() {
             <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} sm:hidden`} id="mobile-menu">
                 <div className="space-y-4 px-2 pt-2 pb-3"> {/* Increased from space-y-2 to space-y-4 */}
                     <Link to="/" className="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white" aria-current="page">Dashboard</Link>
-                    {/* Knives Dropdown - Mobile */}
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsKnivesDropdownOpen(!isKnivesDropdownOpen)} // Consider toggling a separate state for mobile dropdown if needed
-                            className="flex items-center w-full text-left rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white focus:outline-none" // Added flex items-center
-                        >
-                            Knives
-                            {/* Optional: Add a dropdown icon here if desired, e.g., a chevron */}
-                        </button>
-                        {isKnivesDropdownOpen && ( // This state is shared with desktop, might need separate state for mobile
-                            <div className="mt-2 space-y-2 px-2 bg-black"> {/* Increased from space-y-1 to space-y-2, Added bg-black */}
+                    
+                    {/* Knives Link and Dropdown - Mobile */}
+                    <div> {/* Main container for this menu item */}
+                        <div className="flex items-center justify-between w-full rounded-md hover:bg-gray-700"> {/* Wrapper for link and toggle */}
+                            <Link
+                                to="/knives"
+                                className="flex-grow px-3 py-2 text-base font-medium text-gray-300 hover:text-white"
+                                onClick={() => {
+                                    setIsMobileMenuOpen(false); // Close mobile menu on navigation
+                                }}
+                            >
+                                Knives
+                            </Link>
+                            <button
+                                onClick={() => setIsKnivesDropdownOpen(!isKnivesDropdownOpen)}
+                                className="px-3 py-2 text-gray-300 hover:text-white focus:outline-none" // Button for chevron
+                                aria-expanded={isKnivesDropdownOpen}
+                                aria-controls="knives-mobile-submenu"
+                            >
+                                {/* Chevron icon for dropdown toggle */}
+                                <svg className={`w-5 h-5 transform transition-transform duration-150 ${isKnivesDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                        {isKnivesDropdownOpen && (
+                            <div className="mt-1 space-y-1 pl-5 pr-2 pb-2 bg-black" id="knives-mobile-submenu"> {/* Dropdown items with dark background */}
                                 {knifeTypes.map((knifeType) => (
                                     <Link
                                         key={knifeType}
                                         to={`/knives/${knifeType.toLowerCase().replace(/ /g, '-')}`}
-                                        className="flex items-center rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white" // Adjusted for flex layout
+                                        className="flex items-center rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                                         onClick={() => {
                                             setIsKnivesDropdownOpen(false); // Close dropdown on click
                                             setIsMobileMenuOpen(false); // Close mobile menu on click
@@ -174,6 +202,7 @@ export default function Navbar() {
                             </div>
                         )}
                     </div>
+
                     <Link to="/about" className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</Link>
                     <Link to="/trade" className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Trade</Link>
                     {/* Keep other mobile links if they exist, e.g., Team, Projects, Calendar if they are relevant to your app */}

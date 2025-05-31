@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import Navbar from './pages/navbar';
 import Home from './pages/home';
 import About from './pages/about'; // Import the About component
+import Knives from './pages/knives'; // Import the Knives component
 import Footer from './pages/footer';
 import Login from './pages/login'; // Import the Login component
 import Signup from './pages/signup'; // Import the Signup component
@@ -28,6 +29,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} /> {/* Add route for About page */}
+          <Route path="/knives" element={<Knives />} /> {/* Add route for Knives page */}
           <Route path="/login" element={<Login />} /> {/* Add route for Login page */}
           <Route path="/signup" element={<Signup />} /> {/* Add route for Signup page */}
           {/* Add other routes here as needed */}
