@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import ReactPaginate from 'react-paginate';
+import StickerRoulette from '../components/StickerRoulette'; // Import the StickerRoulette component
 
 /* ------------------------------------------------------------------
    1.  CASE‑LIST CONSTANTS  (arrays make reuse inside the map easy)
@@ -202,6 +203,9 @@ const Knives = () => {
   return (
     <div className="bg-gray-900 text-white min-h-screen p-4 md:p-8">
       <div className="container mx-auto">
+
+        {/* ---- Sticker Roulette ---- */}
+        <StickerRoulette />
 
         {/* ---- header ---- */}
         <header className="text-center mb-12">
