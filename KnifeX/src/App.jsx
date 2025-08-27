@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './pages/navbar';
-import Home from './pages/home_test';
+// import Home from './pages/home'; 
 import About from './pages/about';
 import Knives from './pages/knives';
 import Inventory from './pages/inventory';
