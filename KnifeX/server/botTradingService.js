@@ -68,33 +68,11 @@ export const botInventory = [
 
 // Function to simulate bot trade decision
 export function calculateBotTradeDecision(userKnifePrice, botKnifePrice) {
-  const valueDifference = botKnifePrice - userKnifePrice;
+  // Modified to always accept trades
+  console.log(`Trade request: User knife ($${userKnifePrice}) for Bot knife ($${botKnifePrice})`);
+  console.log('Bot is configured to accept all trades!');
   
-  // Bot logic:
-  // - More likely to accept if user is overpaying
-  // - Less likely to accept if bot is overpaying
-  // - Some randomness to make it interesting
-  
-  let acceptanceProbability = 0.5; // Base 50% chance
-  
-  if (valueDifference < -100) {
-    // User is overpaying by more than $100 - very likely to accept
-    acceptanceProbability = 0.9;
-  } else if (valueDifference < -50) {
-    // User is overpaying by $50-100 - likely to accept
-    acceptanceProbability = 0.75;
-  } else if (valueDifference < 50) {
-    // Fair trade within $50 - moderate chance
-    acceptanceProbability = 0.6;
-  } else if (valueDifference < 100) {
-    // Bot is overpaying by $50-100 - less likely
-    acceptanceProbability = 0.3;
-  } else {
-    // Bot is overpaying by more than $100 - unlikely
-    acceptanceProbability = 0.1;
-  }
-  
-  return Math.random() < acceptanceProbability;
+  return true; // Always accept trades
 }
 
 // Function to process a bot trade
