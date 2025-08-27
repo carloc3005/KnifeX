@@ -1,6 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link
-import signupImage from "../assets/images/cs2-signup.png"; // You might want to change this image to match the example
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import signupImage from "../assets/images/cs2-signup.png";
 
 // Placeholder for Google Icon - replace with an actual SVG or icon component
 const GoogleIcon = () => (
@@ -8,6 +9,36 @@ const GoogleIcon = () => (
 );
 
 export default function Login() {
+	const [formData, setFormData] = useState({
+		email: '',
+		password: ''
+	});
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState('');
+	const { login } = useAuth();
+	const navigate = useNavigate();
+
+	const handleChange = (e) => {
+		setFormData({
+			...formData,
+			[e.target.name]: e.target.value
+		});
+	};
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		setLoading(true);
+		setError('');
+
+		try {
+			await login(formData);
+			navigate('/'); // Redirect to home page after successful login
+		} catch (err) {
+			setError(err.message || 'Login failed. Please try again.');
+		} finally {
+			setLoading(false);
+		}
+	};
 	return (
 		<div className="flex min-h-screen bg-gray-50"> {/* Changed page background to a very light gray */}
 			{/* Left Panel */}
@@ -30,7 +61,13 @@ export default function Login() {
 						<p className="mt-2 text-sm text-gray-600">Welcome Back! Please enter your details.</p>
 					</div>
 
-					<form className="space-y-5">
+					<form className="space-y-5" onSubmit={handleSubmit}>
+						{error && (
+							<div className="bg-red-50 border border-red-200 rounded-md p-3">
+								<p className="text-sm text-red-600">{error}</p>
+							</div>
+						)}
+
 						<div>
 							<label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
 								Email
@@ -41,6 +78,8 @@ export default function Login() {
 								type="email"
 								autoComplete="email"
 								required
+								value={formData.email}
+								onChange={handleChange}
 								className="appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 								placeholder="Enter your email"
 							/>
@@ -56,6 +95,8 @@ export default function Login() {
 								type="password"
 								autoComplete="current-password"
 								required
+								value={formData.password}
+								onChange={handleChange}
 								className="appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 								placeholder="Enter your password"
 							/>
@@ -81,9 +122,10 @@ export default function Login() {
 						<div>
 							<button
 								type="submit"
-								className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+								disabled={loading}
+								className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
 							>
-								Log in
+								{loading ? 'Logging in...' : 'Log in'}
 							</button>
 						</div>
 						<div>

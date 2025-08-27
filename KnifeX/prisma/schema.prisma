@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and profiles
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String   // hashed password
+  steamId   String?  @unique // optional Steam ID for Steam integration
+  avatar    String?  // profile picture URL
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  inventory     UserInventory[]
+  sentTrades    Trade[]         @relation("TradeInitiator")
+  receivedTrades Trade[]        @relation("TradeReceiver")
+  tradeHistory  TradeHistory[]
+
+  @@map("users")
+}
+
+// Knife model - represents all available knives in the system
+model Knife {
+  id          String   @id @default(cuid())
+  itemType    String   // e.g., "Karambit", "M9 Bayonet"
+  finishName  String   // e.g., "Doppler", "Fade"
+  imageUrl    String   // URL to knife image
+  quality     String   // e.g., "Covert Knife", "Classified Knife"
+  statTrak    Boolean  @default(false)
+  rarity      String   // e.g., "Covert", "Classified"
+  caseSources String[] // array of case names where this knife can be found
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userInventory UserInventory[]
+  tradeItems    TradeItem[]
+
+  @@unique([itemType, finishName, statTrak]) // prevent duplicate knives
+  @@map("knives")
+}
+
+// User's inventory - links users to their knives with additional metadata
+model UserInventory {
+  id          String    @id @default(cuid())
+  userId      String
+  knifeId     String
+  condition   String    // e.g., "Factory New", "Minimal Wear"
+  floatValue  Float?    // 0.0 to 1.0 for wear value
+  price       Float?    // current market price
+  isForTrade  Boolean   @default(false)
+  acquiredAt  DateTime  @default(now())
+  tradeLocked Boolean   @default(false) // if currently in a pending trade
+
+  // Relations
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  knife      Knife       @relation(fields: [knifeId], references: [id])
+  tradeItems TradeItem[]
+
+  @@map("user_inventory")
+}
+
+// Trade model - represents trade offers between users
+model Trade {
+  id            String      @id @default(cuid())
+  initiatorId   String      // user who initiated the trade
+  receiverId    String      // user who received the trade offer
+  status        TradeStatus @default(PENDING)
+  message       String?     // optional message from initiator
+  expiresAt     DateTime?   // when the trade expires
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  completedAt   DateTime?
+
+  // Relations
+  initiator     User        @relation("TradeInitiator", fields: [initiatorId], references: [id])
+  receiver      User        @relation("TradeReceiver", fields: [receiverId], references: [id])
+  tradeItems    TradeItem[]
+  tradeHistory  TradeHistory?
+
+  @@map("trades")
+}
+
+// Items involved in a trade
+model TradeItem {
+  id                String @id @default(cuid())
+  tradeId           String
+  userInventoryId   String
+  knifeId           String
+  fromInitiator     Boolean // true if item is from trade initiator, false if from receiver
+
+  // Relations
+  trade         Trade         @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  userInventory UserInventory @relation(fields: [userInventoryId], references: [id])
+  knife         Knife         @relation(fields: [knifeId], references: [id])
+
+  @@map("trade_items")
+}
+
+// Trade history for completed trades
+model TradeHistory {
+  id              String   @id @default(cuid())
+  tradeId         String   @unique
+  userId          String   // user this history entry belongs to
+  action          String   // "SENT", "RECEIVED", "ACCEPTED", "DECLINED"
+  itemsGiven      Json[]   // items the user gave up
+  itemsReceived   Json[]   // items the user received
+  completedAt     DateTime @default(now())
+
+  // Relations
+  trade Trade @relation(fields: [tradeId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@map("trade_history")
+}
+
+// Enum for trade status
+enum TradeStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
+}
