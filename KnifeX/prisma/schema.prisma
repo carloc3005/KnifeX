@@ -46,9 +46,41 @@ model Knife {
   // Relations
   userInventory UserInventory[]
   tradeItems    TradeItem[]
+  prices        KnifePrice[]    // relation to knife prices
 
   @@unique([itemType, finishName, statTrak]) // prevent duplicate knives
   @@map("knives")
+}
+
+// Knife prices - tracks market prices for all knife variants
+model KnifePrice {
+  id           String   @id @default(cuid())
+  itemType     String   // e.g., "Karambit", "M9 Bayonet"
+  finishName   String   // e.g., "Doppler", "Fade"
+  condition    String   // e.g., "Factory New", "Minimal Wear", "Field-Tested", "Well-Worn", "Battle-Scarred"
+  statTrak     Boolean  @default(false)
+  
+  // Price data
+  currentPrice Float    // current market price in USD
+  lowPrice     Float?   // lowest recent price
+  highPrice    Float?   // highest recent price
+  avgPrice     Float?   // average price over time
+  
+  // Market data
+  volume       Int      @default(0) // trading volume
+  trend        String   @default("STABLE") // "RISING", "FALLING", "STABLE"
+  lastSalePrice Float?  // price of last recorded sale
+  
+  // Timestamps
+  lastUpdated  DateTime @default(now())
+  createdAt    DateTime @default(now())
+  
+  // Relations
+  knifeId      String?  // optional link to specific knife
+  knife        Knife?   @relation(fields: [knifeId], references: [id])
+
+  @@unique([itemType, finishName, condition, statTrak]) // prevent duplicate price entries
+  @@map("knife_prices")
 }
 
 // User's inventory - links users to their knives with additional metadata
