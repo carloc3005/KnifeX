@@ -2,6 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import ApiClient from '../utils/api';
 
+// Import all knife images
+const knifeImageModules = import.meta.glob('../assets/knives/*/*.png', { eager: true, as: 'url' });
+
+// Helper function to get the correct image URL from Vite's imported modules
+const getKnifeImageUrl = (itemType, finishName) => {
+  // Try multiple naming patterns to match your files
+  const patterns = [
+    // Pattern 1: prefix-finish-name.png (e.g., gut-urban-masked.png)
+    `${itemType.toLowerCase().replace(/\s+/g, '')}-${finishName.toLowerCase().replace(/\s+/g, '-')}.png`,
+    // Pattern 2: prefix-finish name.png (e.g., gut-urban masked.png) 
+    `${itemType.toLowerCase().replace(/\s+/g, '')}-${finishName.toLowerCase()}.png`,
+  ];
+  
+  // Try exact pattern matching first
+  for (const pattern of patterns) {
+    const matchingPath = Object.keys(knifeImageModules).find(path => 
+      path.includes(itemType) && path.includes(pattern)
+    );
+    if (matchingPath) {
+      return knifeImageModules[matchingPath];
+    }
+  }
+  
+  // Try fuzzy matching - find any path that contains both the knife type and finish name
+  const fuzzyMatch = Object.keys(knifeImageModules).find(path => {
+    const lowerPath = path.toLowerCase();
+    const lowerItemType = itemType.toLowerCase();
+    const lowerFinishName = finishName.toLowerCase().replace(/\s+/g, '-');
+    
+    const containsType = lowerPath.includes(lowerItemType.replace(/\s+/g, ''));
+    const containsFinish = lowerPath.includes(lowerFinishName);
+    
+    return containsType && containsFinish;
+  });
+  
+  return fuzzyMatch ? knifeImageModules[fuzzyMatch] : null;
+};
+
 const Inventory = () => {
   const { user, isAuthenticated } = useAuth();
   const [inventory, setInventory] = useState([]);
@@ -143,14 +181,20 @@ const Inventory = () => {
 
                 {/* Knife Image */}
                 <div className="bg-gray-700 p-4">
-                  <img 
-                    src={item.knife.imageUrl} 
-                    alt={`${item.knife.itemType} ${item.knife.finishName}`} 
-                    className="w-full h-32 object-contain"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
+                  {(() => {
+                    const imageUrl = getKnifeImageUrl(item.knife.itemType, item.knife.finishName);
+                    return imageUrl ? (
+                      <img 
+                        src={imageUrl} 
+                        alt={`${item.knife.itemType} ${item.knife.finishName}`} 
+                        className="w-full h-32 object-contain"
+                      />
+                    ) : (
+                      <div className="w-full h-32 flex items-center justify-center text-gray-500">
+                        <span className="text-4xl">🔪</span>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Price and Actions */}

@@ -8,23 +8,80 @@ const knifeImageModules = import.meta.glob('../assets/knives/*/*.png', { eager: 
 
 // Helper function to get the correct image URL from Vite's imported modules
 const getKnifeImageUrl = (itemType, finishName) => {
-  // Convert itemType and finishName to match file naming convention
-  const folderName = itemType;
-  const prefix = itemType.toLowerCase().replace(/\s+/g, '');
-  const fileName = `${prefix}-${finishName.toLowerCase().replace(/\s+/g, '-')}.png`;
+  console.log('🔍 Looking for:', { itemType, finishName });
   
-  // Debug logging
-  console.log('Looking for image:', { itemType, finishName, prefix, fileName, folderName });
+  // Normalize the knife type and finish name to match file naming convention
+  const normalizeKnifeType = (type) => {
+    return type.toLowerCase()
+      .replace(/\s+knife$/i, '') // Remove "Knife" suffix if present
+      .replace(/\s+/g, '');       // Remove spaces
+  };
   
-  // Find matching image in imported modules
-  const matchingPath = Object.keys(knifeImageModules).find(path => {
-    const pathMatches = path.includes(folderName) && path.includes(fileName);
-    console.log('Checking path:', path, 'matches:', pathMatches);
-    return pathMatches;
+  const normalizeFinishName = (finish) => {
+    return finish.toLowerCase()
+      .replace(/\s+/g, '-')       // Replace spaces with hyphens
+      .replace(/[™®]/g, '');      // Remove trademark symbols
+  };
+  
+  const normalizedType = normalizeKnifeType(itemType);
+  const normalizedFinish = normalizeFinishName(finishName);
+  
+  // Build the expected filename pattern: type-finish.png
+  const expectedFilename = `${normalizedType}-${normalizedFinish}.png`;
+  
+  console.log('🔎 Expected filename:', expectedFilename);
+  console.log('📁 Available paths:', Object.keys(knifeImageModules));
+  
+  // Look for exact match in the correct folder
+  const exactMatch = Object.keys(knifeImageModules).find(path => {
+    const filename = path.split('/').pop(); // Get just the filename
+    return filename === expectedFilename && path.includes(itemType);
   });
   
-  console.log('Found matching path:', matchingPath);
-  return matchingPath ? knifeImageModules[matchingPath] : null;
+  if (exactMatch) {
+    console.log('✅ Exact match found:', exactMatch);
+    return knifeImageModules[exactMatch];
+  }
+  
+  // Try alternative patterns for special cases
+  const alternativePatterns = [
+    // Handle "Vanilla" finish (no finish name in filename)
+    finishName.toLowerCase() === 'vanilla' ? `${normalizedType}-vanilla.png` : null,
+    // Handle case where finish might have different formatting
+    `${normalizedType}-${normalizedFinish.replace(/-/g, '')}.png`,
+    // Handle potential capitalization differences
+    `${normalizedType}-${normalizedFinish.charAt(0).toUpperCase() + normalizedFinish.slice(1)}.png`
+  ].filter(Boolean);
+  
+  for (const pattern of alternativePatterns) {
+    const altMatch = Object.keys(knifeImageModules).find(path => {
+      const filename = path.split('/').pop();
+      return filename === pattern && path.includes(itemType);
+    });
+    
+    if (altMatch) {
+      console.log('✅ Alternative match found:', altMatch);
+      return knifeImageModules[altMatch];
+    }
+  }
+  
+  // Final fallback: fuzzy matching
+  const fuzzyMatch = Object.keys(knifeImageModules).find(path => {
+    const lowerPath = path.toLowerCase();
+    const containsType = lowerPath.includes(normalizedType);
+    const containsFinish = lowerPath.includes(normalizedFinish.replace(/-/g, ''));
+    
+    console.log(`🔎 Fuzzy check: ${path} -> type: ${containsType}, finish: ${containsFinish}`);
+    return containsType && containsFinish;
+  });
+  
+  if (fuzzyMatch) {
+    console.log('✅ Fuzzy match found:', fuzzyMatch);
+    return knifeImageModules[fuzzyMatch];
+  }
+  
+  console.log('❌ No match found for:', { itemType, finishName, expectedFilename });
+  return null;
 };
 
 function MyKnives() {
@@ -195,15 +252,43 @@ function MyKnives() {
                 <div className="relative overflow-hidden rounded-xl mb-6 bg-gray-800 h-40 flex items-center justify-center">
                   {(() => {
                     const imageUrl = getKnifeImageUrl(item.knife.itemType, item.knife.finishName);
-                    return imageUrl ? (
-                      <img 
-                        src={imageUrl} 
-                        alt={`${item.knife.itemType} | ${item.knife.finishName}`}
-                        className="max-w-full max-h-full object-contain transform group-hover:scale-110 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="text-gray-500 text-4xl">🔪</div>
-                    );
+                    
+                    if (imageUrl) {
+                      return (
+                        <>
+                          <img 
+                            src={imageUrl} 
+                            alt={`${item.knife.itemType} | ${item.knife.finishName}`}
+                            className="max-w-full max-h-full object-contain transform group-hover:scale-110 transition-transform duration-300"
+                            onError={(e) => {
+                              console.log('❌ Image failed to load:', imageUrl);
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          <div 
+                            className="text-gray-500 text-4xl flex-col items-center"
+                            style={{ display: 'none' }}
+                          >
+                            <div className="text-6xl mb-2">🔪</div>
+                            <div className="text-xs text-center text-gray-600">
+                              {item.knife.itemType}<br/>
+                              {item.knife.finishName}
+                            </div>
+                          </div>
+                        </>
+                      );
+                    } else {
+                      return (
+                        <div className="text-gray-500 text-4xl flex flex-col items-center">
+                          <div className="text-6xl mb-2">🔪</div>
+                          <div className="text-xs text-center text-gray-600">
+                            {item.knife.itemType}<br/>
+                            {item.knife.finishName}
+                          </div>
+                        </div>
+                      );
+                    }
                   })()}
                   
                   {/* Rarity Badge */}

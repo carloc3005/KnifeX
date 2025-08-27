@@ -136,12 +136,6 @@ export default function Navbar() {
                                         My Knives
                                     </Link>
                                 )}
-
-                                {isAuthenticated && (
-                                    <Link to="/inventory" className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                                        My Inventory
-                                    </Link>
-                                )}
                                 
                                 <Link to="/about" className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</Link>
                             </div>
@@ -180,13 +174,6 @@ export default function Navbar() {
                                                 onClick={() => setIsUserDropdownOpen(false)}
                                             >
                                                 Your Profile
-                                            </Link>
-                                            <Link 
-                                                to="/inventory" 
-                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                onClick={() => setIsUserDropdownOpen(false)}
-                                            >
-                                                My Inventory
                                             </Link>
                                             <Link 
                                                 to="/trades" 
@@ -272,16 +259,6 @@ export default function Navbar() {
                             onClick={() => setIsMobileMenuOpen(false)}
                         >
                             My Knives
-                        </Link>
-                    )}
-
-                    {isAuthenticated && (
-                        <Link 
-                            to="/inventory" 
-                            className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                            My Inventory
                         </Link>
                     )}
                     
