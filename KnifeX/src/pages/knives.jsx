@@ -118,9 +118,13 @@ const useKnivesData = () => {
       if (itemType === 'M9 Knife') itemType = 'M9 Bayonet';
       if (itemType === 'Sd Knife') itemType = 'Shadow Daggers';
 
-      /* finish name from file name */
-      const parts = file.split('-');
-      const finishName = toTitle(parts.length > 1 ? parts.slice(1).join('-') : parts[0]);
+      /* finish name from file name - handle lowercase with dashes */
+      const fileNameWithoutExt = file.replace(/\.(png|jpg|jpeg)$/i, '');
+      const prefix = folder.toLowerCase().replace(/\s+/g, '');
+      const finishName = fileNameWithoutExt
+        .replace(new RegExp(`^${prefix}-`, 'i'), '') // Remove prefix (e.g., "gut-")
+        .replace(/-/g, ' ') // Replace dashes with spaces
+        .replace(/\b\w/g, c => c.toUpperCase()); // Capitalize first letter of each word
 
       /* valid case list lookup */
       let source;

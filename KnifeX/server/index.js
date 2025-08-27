@@ -4,6 +4,15 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import { 
+  getAllKnifePrices, 
+  getKnifePrice, 
+  getPricesByKnifeType, 
+  updateKnifePrice, 
+  getMarketStats 
+} from './knifePriceService.js';
+import { addStarterKnivesToUser, getUserInventoryWithKnives } from './starterInventoryService.js';
+import { botInventory, processBotTrade } from './botTradingService.js';
 
 dotenv.config();
 
@@ -68,6 +77,15 @@ app.post('/api/auth/register', async (req, res) => {
         password: hashedPassword
       }
     });
+
+    // Add starter knives to new user's inventory
+    try {
+      await addStarterKnivesToUser(user.id);
+      console.log(`✅ Added starter knives to new user: ${user.username}`);
+    } catch (inventoryError) {
+      console.error('Failed to add starter knives:', inventoryError);
+      // Don't fail registration if inventory addition fails
+    }
 
     // Generate JWT token
     const token = jwt.sign(
@@ -315,6 +333,140 @@ app.get('/api/trades', authenticateToken, async (req, res) => {
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// ============================================================================
+// INVENTORY ROUTES
+// ============================================================================
+
+// Get user's inventory
+app.get('/api/inventory', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const inventory = await getUserInventoryWithKnives(userId);
+    res.json(inventory);
+  } catch (error) {
+    console.error('Error fetching inventory:', error);
+    res.status(500).json({ error: 'Failed to fetch inventory' });
+  }
+});
+
+// Get user's inventory count
+app.get('/api/inventory/count', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const count = await prisma.userInventory.count({
+      where: { userId }
+    });
+    res.json({ count });
+  } catch (error) {
+    console.error('Error fetching inventory count:', error);
+    res.status(500).json({ error: 'Failed to fetch inventory count' });
+  }
+});
+
+// ============================================================================
+// BOT TRADING ROUTES
+// ============================================================================
+
+// Get bot's available inventory
+app.get('/api/bot/inventory', async (req, res) => {
+  try {
+    res.json(botInventory);
+  } catch (error) {
+    console.error('Error fetching bot inventory:', error);
+    res.status(500).json({ error: 'Failed to fetch bot inventory' });
+  }
+});
+
+// Process a trade with the bot
+app.post('/api/bot/trade', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { userInventoryId, botKnifeId } = req.body;
+
+    if (!userInventoryId || !botKnifeId) {
+      return res.status(400).json({ error: 'userInventoryId and botKnifeId are required' });
+    }
+
+    const tradeResult = await processBotTrade(userId, userInventoryId, botKnifeId);
+    res.json(tradeResult);
+    
+  } catch (error) {
+    console.error('Error processing bot trade:', error);
+    res.status(500).json({ error: 'Failed to process trade' });
+  }
+});
+
+// ============================================================================
+// KNIFE PRICE ROUTES
+// ============================================================================
+
+// Get all knife prices
+app.get('/api/knife-prices', async (req, res) => {
+  try {
+    const prices = await getAllKnifePrices();
+    res.json(prices);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch knife prices' });
+  }
+});
+
+// Get market statistics
+app.get('/api/knife-prices/stats', async (req, res) => {
+  try {
+    const stats = await getMarketStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch market stats' });
+  }
+});
+
+// Get prices by knife type
+app.get('/api/knife-prices/:itemType', async (req, res) => {
+  try {
+    const { itemType } = req.params;
+    const prices = await getPricesByKnifeType(itemType);
+    res.json(prices);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch prices for knife type' });
+  }
+});
+
+// Get specific knife price
+app.get('/api/knife-prices/:itemType/:finishName/:condition', async (req, res) => {
+  try {
+    const { itemType, finishName, condition } = req.params;
+    const { statTrak } = req.query;
+    
+    const price = await getKnifePrice(
+      itemType, 
+      finishName, 
+      condition, 
+      statTrak === 'true'
+    );
+    
+    if (!price) {
+      return res.status(404).json({ error: 'Price not found for this knife variant' });
+    }
+    
+    res.json(price);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch knife price' });
+  }
+});
+
+// Update knife price (protected route)
+app.put('/api/knife-prices/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const priceData = req.body;
+    
+    const updatedPrice = await updateKnifePrice(id, priceData);
+    res.json(updatedPrice);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update knife price' });
+  }
 });
 
 // Error handling middleware
