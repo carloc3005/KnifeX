@@ -66,11 +66,11 @@ export const botInventory = [
   }
 ];
 
-// Function to simulate bot trade decision
+// Function to simulate bot trade decision - AUTOMATIC MODE
 export function calculateBotTradeDecision(userKnifePrice, botKnifePrice) {
-  // Modified to always accept trades
-  console.log(`Trade request: User knife ($${userKnifePrice}) for Bot knife ($${botKnifePrice})`);
-  console.log('Bot is configured to accept all trades!');
+  // Bot now automatically accepts ALL trades
+  console.log(`🤖 Bot evaluating trade: User knife $${userKnifePrice} ⇄ Bot knife $${botKnifePrice}`);
+  console.log(`🎯 AUTOMATIC MODE: Bot accepts all trades!`);
   
   return true; // Always accept trades
 }
@@ -100,16 +100,20 @@ export async function processBotTrade(userId, userInventoryId, botKnifeId) {
       throw new Error('Bot knife not found');
     }
 
-    // Calculate bot decision
+    // Calculate bot decision (now automatic)
     const tradeAccepted = calculateBotTradeDecision(userKnife.price || 0, botKnife.price);
 
+    // Since bot is now automatic, this should always be true, but keeping the check for safety
     if (!tradeAccepted) {
+      console.log(`❌ Trade rejected (this shouldn't happen in automatic mode)`);
       return {
         success: false,
         message: 'Bot declined the trade offer',
-        reason: 'The bot thinks this trade is not favorable'
+        reason: 'Unexpected rejection in automatic mode'
       };
     }
+
+    console.log(`✅ Trade accepted! Processing exchange...`);
 
     // Create or find the bot knife in the database
     let botKnifeRecord = await prisma.knife.findFirst({
