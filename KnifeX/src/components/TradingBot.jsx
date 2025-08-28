@@ -199,9 +199,13 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
-              🤖 Trading Bot
+              🤖 Trading Bot (Auto-Accept)
             </h2>
-            <p className="text-gray-300 mt-2">Find the perfect knife to trade with our AI bot</p>
+            <p className="text-gray-300 mt-2">Our bot automatically accepts all trade offers!</p>
+            <div className="flex items-center mt-2 text-green-400">
+              <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+              <span className="text-sm font-medium">AUTOMATIC MODE ACTIVE</span>
+            </div>
           </div>
           <button 
             onClick={onClose}
@@ -221,17 +225,17 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
             {tradeStatus === 'pending' && (
               <div className="text-yellow-400">
                 <div className="animate-spin inline-block w-6 h-6 border-2 border-yellow-400 border-t-transparent rounded-full mr-2"></div>
-                Bot is considering your trade offer...
+                Processing automatic trade acceptance...
               </div>
             )}
             {tradeStatus === 'accepted' && (
               <div className="text-green-400">
-                ✅ Trade accepted! Your knives have been exchanged.
+                ✅ Trade automatically accepted! Your knives have been exchanged.
               </div>
             )}
             {tradeStatus === 'declined' && (
               <div className="text-red-400">
-                ❌ Trade declined. The bot thinks this trade isn't fair.
+                ❌ Trade failed due to a technical error. Please try again.
               </div>
             )}
           </div>
@@ -316,6 +320,12 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
         {selectedBotKnife && (
           <div className="mt-8 bg-gray-800/30 rounded-2xl p-6 border border-gray-700/50">
             <h3 className="text-2xl font-bold text-white mb-4 text-center">Trade Summary</h3>
+            
+            {/* Auto-Accept Notice */}
+            <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-center">
+              <span className="text-green-400 font-medium">🎯 This trade will be automatically accepted!</span>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
               <div className="text-center">
                 <div className="text-gray-400">You Give</div>
@@ -360,7 +370,7 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
                 disabled={!selectedBotKnife || loading}
                 className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-600 text-white font-bold py-3 px-8 rounded-xl transition-all disabled:cursor-not-allowed"
               >
-                {loading ? 'Processing...' : 'Propose Trade'}
+                {loading ? 'Processing...' : 'Execute Auto-Trade'}
               </button>
             </>
           ) : (
