@@ -385,16 +385,24 @@ app.post('/api/bot/trade', authenticateToken, async (req, res) => {
     const userId = req.user.userId;
     const { userInventoryId, botKnifeId } = req.body;
 
+    console.log('🔄 Bot trade request:', { userId, userInventoryId, botKnifeId });
+
     if (!userInventoryId || !botKnifeId) {
+      console.log('❌ Missing required parameters');
       return res.status(400).json({ error: 'userInventoryId and botKnifeId are required' });
     }
 
     const tradeResult = await processBotTrade(userId, userInventoryId, botKnifeId);
+    console.log('✅ Trade result:', tradeResult);
     res.json(tradeResult);
     
   } catch (error) {
-    console.error('Error processing bot trade:', error);
-    res.status(500).json({ error: 'Failed to process trade' });
+    console.error('❌ Error processing bot trade:', error);
+    res.status(500).json({ 
+      error: 'Failed to process trade',
+      message: error.message,
+      success: false 
+    });
   }
 });
 
