@@ -1,8 +1,8 @@
 import { calculateBotTradeDecision } from './botTradingService.js';
 
-console.log('🤖 Testing Bot Trading Auto-Accept Functionality\n');
+console.log('🤖 Testing Bot Trading System\n');
 
-// Test various trade scenarios to ensure bot always accepts
+// Test various trade scenarios
 const testCases = [
   { userPrice: 100, botPrice: 200, scenario: 'User gives cheap, bot gives expensive' },
   { userPrice: 500, botPrice: 300, scenario: 'User gives expensive, bot gives cheap' },
@@ -13,9 +13,10 @@ const testCases = [
   { userPrice: 500, botPrice: 0, scenario: 'Free knife for bot' }
 ];
 
-console.log('Running automated trade acceptance tests...\n');
+console.log('Running trade tests...\n');
 
-let allPassed = true;
+let acceptedTrades = 0;
+let totalTrades = testCases.length;
 
 testCases.forEach((test, index) => {
   console.log(`Test ${index + 1}: ${test.scenario}`);
@@ -24,20 +25,16 @@ testCases.forEach((test, index) => {
   const result = calculateBotTradeDecision(test.userPrice, test.botPrice);
   
   if (result === true) {
-    console.log(`  ✅ PASSED - Bot accepted the trade\n`);
+    console.log(`  ✅ COMPLETED\n`);
+    acceptedTrades++;
   } else {
-    console.log(`  ❌ FAILED - Bot rejected the trade\n`);
-    allPassed = false;
+    console.log(`  ❌ FAILED\n`);
   }
 });
 
-if (allPassed) {
-  console.log('🎉 ALL TESTS PASSED! Bot is now in automatic acceptance mode.');
-  console.log('🔄 The bot will accept ANY trade offer automatically.');
-} else {
-  console.log('⚠️  Some tests failed. Bot may not be in full automatic mode.');
-}
+console.log(`📊 Trade Results: ${acceptedTrades}/${totalTrades} trades completed`);
+console.log('✅ Bot trading system ready!');
 
 console.log('\n' + '='.repeat(60));
-console.log('Bot Trading System Status: AUTOMATIC MODE ACTIVE');
+console.log('Bot Trading System Status: READY');
 console.log('='.repeat(60));

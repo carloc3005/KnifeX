@@ -66,11 +66,10 @@ export const botInventory = [
   }
 ];
 
-// Function to simulate bot trade decision - AUTOMATIC MODE
+// Function to simulate bot trade decision
 export function calculateBotTradeDecision(userKnifePrice, botKnifePrice) {
-  // Bot now automatically accepts ALL trades
   console.log(`🤖 Bot evaluating trade: User knife $${userKnifePrice} ⇄ Bot knife $${botKnifePrice}`);
-  console.log(`🎯 AUTOMATIC MODE: Bot accepts all trades!`);
+  console.log(`✅ Bot accepts trade`);
   
   return true; // Always accept trades
 }
@@ -100,20 +99,21 @@ export async function processBotTrade(userId, userInventoryId, botKnifeId) {
       throw new Error('Bot knife not found');
     }
 
-    // Calculate bot decision (now automatic)
+    // Calculate bot decision
     const tradeAccepted = calculateBotTradeDecision(userKnife.price || 0, botKnife.price);
 
-    // Since bot is now automatic, this should always be true, but keeping the check for safety
     if (!tradeAccepted) {
-      console.log(`❌ Trade rejected (this shouldn't happen in automatic mode)`);
+      console.log(`❌ Trade rejected by bot`);
       return {
         success: false,
         message: 'Bot declined the trade offer',
-        reason: 'Unexpected rejection in automatic mode'
+        reason: 'Trade declined'
       };
     }
 
     console.log(`✅ Trade accepted! Processing exchange...`);
+    console.log(`User knife: ${userKnife.knife.itemType} | ${userKnife.knife.finishName} ($${userKnife.price})`);
+    console.log(`Bot knife: ${botKnife.itemType} | ${botKnife.finishName} ($${botKnife.price})`);
 
     // Create or find the bot knife in the database
     let botKnifeRecord = await prisma.knife.findFirst({
@@ -126,27 +126,36 @@ export async function processBotTrade(userId, userInventoryId, botKnifeId) {
 
     if (!botKnifeRecord) {
       // Create the knife record if it doesn't exist
+      console.log(`Creating new knife record for: ${botKnife.itemType} | ${botKnife.finishName}`);
+      
       botKnifeRecord = await prisma.knife.create({
         data: {
           itemType: botKnife.itemType,
           finishName: botKnife.finishName,
-          imageUrl: `/src/assets/knives/${botKnife.itemType}/${botKnife.itemType.toLowerCase()}-${botKnife.finishName.toLowerCase().replace(/\s+/g, '-')}.png`,
+          imageUrl: `/src/assets/knives/${botKnife.itemType}/${botKnife.itemType.toLowerCase().replace(/\s+/g, '-')}-${botKnife.finishName.toLowerCase().replace(/\s+/g, '-')}.png`,
           quality: 'Covert Knife',
           statTrak: botKnife.statTrak,
           rarity: botKnife.rarity,
           caseSources: ['Bot Trading']
         }
       });
+      
+      console.log(`✅ Created knife record with ID: ${botKnifeRecord.id}`);
+    } else {
+      console.log(`✅ Found existing knife record with ID: ${botKnifeRecord.id}`);
     }
 
     // Start transaction
+    console.log(`🔄 Starting database transaction...`);
     const result = await prisma.$transaction(async (tx) => {
       // Remove user's knife from inventory
+      console.log(`🗑️ Removing user knife from inventory (ID: ${userInventoryId})`);
       await tx.userInventory.delete({
         where: { id: userInventoryId }
       });
 
       // Add bot's knife to user's inventory
+      console.log(`➕ Adding bot knife to user inventory`);
       const newKnife = await tx.userInventory.create({
         data: {
           userId: userId,
@@ -161,9 +170,14 @@ export async function processBotTrade(userId, userInventoryId, botKnifeId) {
           knife: true
         }
       });
-
+      
+      console.log(`✅ Transaction completed, new knife ID: ${newKnife.id}`);
       return newKnife;
     });
+
+    console.log(`🎉 Trade completed successfully!`);
+    console.log(`User received: ${result.knife.itemType} | ${result.knife.finishName}`);
+    console.log(`New inventory item ID: ${result.id}`);
 
     return {
       success: true,

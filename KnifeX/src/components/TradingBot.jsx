@@ -153,7 +153,15 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
     setTradeStatus('pending');
     
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token'); // Fixed: was 'token', should be 'auth_token'
+      
+      if (!token) {
+        console.error('No authentication token found');
+        setTradeStatus('declined');
+        alert('Please log in again to trade');
+        return;
+      }
+      
       const response = await fetch('http://localhost:3001/api/bot/trade', {
         method: 'POST',
         headers: {
@@ -168,14 +176,39 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
 
       const result = await response.json();
       
+      // Check if the HTTP request was successful
+      if (!response.ok) {
+        console.error('HTTP Error:', response.status, result);
+        
+        // Handle authentication errors specifically
+        if (response.status === 401 || response.status === 403) {
+          alert('Your session has expired. Please log in again.');
+          // Optionally redirect to login page
+          window.location.href = '/login';
+          return;
+        }
+        
+        setTradeStatus('declined');
+        console.log('Trade failed:', result.error || result.message);
+        return;
+      }
+      
       if (result.success) {
         setTradeStatus('accepted');
         // Notify parent component of successful trade
         if (onTradeComplete) {
           onTradeComplete(result);
         }
+        
+        // Auto-close after a short delay to show success message
+        setTimeout(() => {
+          setTradeStatus('');
+          setSelectedBotKnife(null);
+          onClose();
+        }, 3000);
       } else {
         setTradeStatus('declined');
+        console.log('Trade declined:', result.reason || result.message);
       }
     } catch (error) {
       console.error('Trade error:', error);
@@ -199,12 +232,12 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
-              🤖 Trading Bot (Auto-Accept)
+              🤖 Trading Bot
             </h2>
-            <p className="text-gray-300 mt-2">Our bot automatically accepts all trade offers!</p>
-            <div className="flex items-center mt-2 text-green-400">
-              <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-              <span className="text-sm font-medium">AUTOMATIC MODE ACTIVE</span>
+            <p className="text-gray-300 mt-2">Trade your knives with our intelligent trading bot!</p>
+            <div className="flex items-center mt-2 text-cyan-400">
+              <div className="w-2 h-2 bg-cyan-400 rounded-full mr-2 animate-pulse"></div>
+              <span className="text-sm font-medium">BOT ONLINE</span>
             </div>
           </div>
           <button 
@@ -225,17 +258,20 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
             {tradeStatus === 'pending' && (
               <div className="text-yellow-400">
                 <div className="animate-spin inline-block w-6 h-6 border-2 border-yellow-400 border-t-transparent rounded-full mr-2"></div>
-                Processing automatic trade acceptance...
+                Processing trade...
               </div>
             )}
             {tradeStatus === 'accepted' && (
               <div className="text-green-400">
-                ✅ Trade automatically accepted! Your knives have been exchanged.
+                <div className="text-2xl mb-2">🎉</div>
+                <div className="text-xl font-bold">TRADE SUCCESSFUL!</div>
+                <div className="mt-2">You received: {selectedBotKnife?.itemType} | {selectedBotKnife?.finishName}</div>
+                <div className="text-sm mt-1">Check your inventory to see your new knife!</div>
               </div>
             )}
             {tradeStatus === 'declined' && (
               <div className="text-red-400">
-                ❌ Trade failed due to a technical error. Please try again.
+                ❌ Trade failed. Please try again.
               </div>
             )}
           </div>
@@ -321,11 +357,6 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
           <div className="mt-8 bg-gray-800/30 rounded-2xl p-6 border border-gray-700/50">
             <h3 className="text-2xl font-bold text-white mb-4 text-center">Trade Summary</h3>
             
-            {/* Auto-Accept Notice */}
-            <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-center">
-              <span className="text-green-400 font-medium">🎯 This trade will be automatically accepted!</span>
-            </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
               <div className="text-center">
                 <div className="text-gray-400">You Give</div>
@@ -370,7 +401,7 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
                 disabled={!selectedBotKnife || loading}
                 className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-600 text-white font-bold py-3 px-8 rounded-xl transition-all disabled:cursor-not-allowed"
               >
-                {loading ? 'Processing...' : 'Execute Auto-Trade'}
+                {loading ? 'Processing...' : 'Trade Now'}
               </button>
             </>
           ) : (
@@ -382,10 +413,15 @@ function TradingBot({ isOpen, onClose, userKnife, onTradeComplete }) {
                 Try Another Trade
               </button>
               <button 
-                onClick={onClose}
+                onClick={() => {
+                  if (onTradeComplete) {
+                    onTradeComplete({ refresh: true });
+                  }
+                  onClose();
+                }}
                 className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold py-3 px-8 rounded-xl transition-all"
               >
-                Close
+                {tradeStatus === 'accepted' ? 'View New Knife' : 'Close'}
               </button>
             </>
           )}
