@@ -13,7 +13,7 @@ import {
   updateKnifePrice, 
   getMarketStats 
 } from './knifePriceService.js';
-import { addStarterKnivesToUser, getUserInventoryWithKnives } from './starterInventoryService.js';
+import { addStarterKnivesToUser, getUserInventoryWithKnives } from '../server/starterInventoryService.js';
 import { botInventory, processBotTrade } from './botTradingService.js';
 
 const app = express();

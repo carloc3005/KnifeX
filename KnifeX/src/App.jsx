@@ -6,7 +6,6 @@ import Home from './pages/home_new';
 import About from './pages/about';
 import Knives from './pages/knives';
 import MyKnives from './pages/my-knives';
-import Inventory from './pages/inventory';
 import Footer from './pages/footer';
 import Login from './pages/login';
 import Signup from './pages/signup';
@@ -38,7 +37,6 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/knives" element={<Knives />} />
             <Route path="/my-knives" element={<MyKnives />} />
-            <Route path="/inventory" element={<Inventory />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/callback" element={<AuthCallback />} />

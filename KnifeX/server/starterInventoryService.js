@@ -5,31 +5,31 @@ const prisma = new PrismaClient();
 // Starter knives that new users will receive
 const starterKnives = [
   {
-    itemType: 'Gut Knife',
-    finishName: 'Urban Masked',
-    imageUrl: '/src/assets/knives/Gut Knife/gut-urban-masked.png',
+    itemType: 'Butterfly Knife',
+    finishName: 'Fade',
+    imageUrl: '/src/assets/knives/Butterfly Knife/butterfly-fade.png',
     quality: 'Covert Knife',
     statTrak: false,
     rarity: 'Covert',
     caseSources: ['Operation Breakout Weapon Case']
   },
   {
-    itemType: 'Flip Knife',
-    finishName: 'Scorched',
-    imageUrl: '/src/assets/knives/Flip Knife/flip-scorched.png',
+    itemType: 'Karambit',
+    finishName: 'Doppler',
+    imageUrl: '/src/assets/knives/Karambit/karambit-doppler.png',
     quality: 'Covert Knife', 
     statTrak: false,
     rarity: 'Covert',
-    caseSources: ['CS:GO Weapon Case']
+    caseSources: ['Chroma Case']
   },
   {
-    itemType: 'Huntsman Knife',
-    finishName: 'Safari Mesh',
-    imageUrl: '/src/assets/knives/Huntsman Knife/huntsman-safari-mesh.png',
+    itemType: 'M9 Bayonet',
+    finishName: 'Tiger Tooth',
+    imageUrl: '/src/assets/knives/M9 Knife/m9-tiger-tooth.png',
     quality: 'Covert Knife',
     statTrak: false,
     rarity: 'Covert', 
-    caseSources: ['Huntsman Weapon Case']
+    caseSources: ['Chroma Case']
   }
 ];
 

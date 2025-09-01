@@ -132,7 +132,7 @@ export default function Navbar() {
                                 </div>
 
                                 {isAuthenticated && (
-                                    <Link to="/inventory" className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                                    <Link to="/my-knives" className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
                                         My Inventory
                                     </Link>
                                 )}
@@ -176,7 +176,7 @@ export default function Navbar() {
                                                 Your Profile
                                             </Link>
                                             <Link 
-                                                to="/inventory" 
+                                                to="/my-knives" 
                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                 onClick={() => setIsUserDropdownOpen(false)}
                                             >
@@ -261,7 +261,7 @@ export default function Navbar() {
 
                     {isAuthenticated && (
                         <Link 
-                            to="/inventory" 
+                            to="/my-knives" 
                             className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                             onClick={() => setIsMobileMenuOpen(false)}
                         >

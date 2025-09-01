@@ -10,7 +10,7 @@ export default function Navbar() {
     const { user, logout, isAuthenticated } = useAuth();
 
     const knifeTypes = [
-        "Flip Knife", "Gut Knife", "Huntsman Knife", "Karambit", "Kukri Knife",
+        "Butterfly Knife", "Flip Knife", "Gut Knife", "Huntsman Knife", "Karambit", "Kukri Knife",
         "M9 Bayonet", "Navaja Knife", "Nomad Knife", "Paracord Knife",
         "Shadow Daggers", "Skeleton Knife", "Stiletto Knife", "Survival Knife", "Talon Knife", "Ursus Knife"
     ];
@@ -27,7 +27,9 @@ export default function Navbar() {
         let specificImageName = null;
 
         // Specific mappings for renamed folders or inconsistent naming
-        if (knifeType === "Flip Knife") {
+        if (knifeType === "Butterfly Knife") {
+            imageNamePrefix = "butterfly";
+        } else if (knifeType === "Flip Knife") {
             imageNamePrefix = "flip";
         } else if (knifeType === "M9 Bayonet") {
             imageNamePrefix = "m9";

@@ -235,6 +235,7 @@ function MyKnives() {
             <option value="all">All Knives</option>
             <option value="tradeable">Available for Trade</option>
             <option value="stattrak">StatTrak™ Only</option>
+            <option value="butterfly">Butterfly Knife</option>
             <option value="karambit">Karambit</option>
             <option value="m9">M9 Bayonet</option>
             <option value="flip">Flip Knife</option>

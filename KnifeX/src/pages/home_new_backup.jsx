@@ -98,7 +98,7 @@ function Home() {
                 {isAuthenticated ? (
                   <>
                     <Link 
-                      to="/inventory"
+                      to="/my-knives"
                       className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-5 px-12 rounded-2xl text-xl shadow-2xl transform hover:scale-110 transition-all duration-300 ease-in-out"
                     >
                       <span className="flex items-center">
