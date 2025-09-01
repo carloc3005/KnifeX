@@ -10,11 +10,14 @@ import Inventory from './pages/inventory';
 import Footer from './pages/footer';
 import Login from './pages/login';
 import Signup from './pages/signup';
+import AuthCallback from './pages/AuthCallback';
 
 // Helper component to conditionally render Navbar and Footer
 const Layout = ({ children }) => {
   const location = useLocation();
-  const showLayout = location.pathname !== '/login' && location.pathname !== '/signup';
+  const showLayout = location.pathname !== '/login' && 
+                     location.pathname !== '/signup' && 
+                     location.pathname !== '/auth/callback';
 
   return (
     <>
@@ -38,6 +41,7 @@ function App() {
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             {/* Add other routes here as needed */}
           </Routes>
         </Layout>

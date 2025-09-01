@@ -3,6 +3,9 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import session from 'express-session';
 import { 
   getAllKnifePrices, 
   getKnifePrice, 
@@ -17,8 +20,111 @@ const app = express();
 const prisma = new PrismaClient();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://knife-campsvr9w-carlo-castillos-projects-1517593b.vercel.app'
+    : ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true
+}));
 app.use(express.json());
+
+// Session middleware (required for Passport)
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Passport Google OAuth Strategy
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.NODE_ENV === 'production' 
+    ? 'https://knife-campsvr9w-carlo-castillos-projects-1517593b.vercel.app/api/auth/google/callback'
+    : 'http://localhost:5173/api/auth/google/callback'
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    // Check if user already exists
+    let user = await prisma.user.findUnique({
+      where: { googleId: profile.id }
+    });
+
+    if (user) {
+      return done(null, user);
+    }
+
+    // Check if user exists with same email
+    user = await prisma.user.findUnique({
+      where: { email: profile.emails[0].value }
+    });
+
+    if (user) {
+      // Link Google account to existing user
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          googleId: profile.id,
+          provider: 'google',
+          avatar: profile.photos[0]?.value
+        }
+      });
+    } else {
+      // Create new user
+      user = await prisma.user.create({
+        data: {
+          email: profile.emails[0].value,
+          username: profile.displayName || profile.emails[0].value.split('@')[0],
+          googleId: profile.id,
+          provider: 'google',
+          avatar: profile.photos[0]?.value
+        }
+      });
+
+      // Add starter knives to new user
+      try {
+        await addStarterKnivesToUser(user.id);
+      } catch (error) {
+        console.error('Error adding starter knives:', error);
+      }
+    }
+
+    return done(null, user);
+  } catch (error) {
+    return done(error, null);
+  }
+}));
+
+// Passport serialization
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        avatar: true,
+        provider: true,
+        createdAt: true
+      }
+    });
+    done(null, user);
+  } catch (error) {
+    done(error, null);
+  }
+});
 
 // Auth middleware
 const authenticateToken = (req, res, next) => {
@@ -37,6 +143,30 @@ const authenticateToken = (req, res, next) => {
     next();
   });
 };
+
+// Google OAuth Routes
+app.get('/api/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get('/api/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  async (req, res) => {
+    // Generate JWT token for the authenticated user
+    const token = jwt.sign(
+      { userId: req.user.id, email: req.user.email, username: req.user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    // Redirect to frontend with token
+    const redirectUrl = process.env.NODE_ENV === 'production'
+      ? `https://knife-campsvr9w-carlo-castillos-projects-1517593b.vercel.app/auth/callback?token=${token}`
+      : `http://localhost:5173/auth/callback?token=${token}`;
+    
+    res.redirect(redirectUrl);
+  }
+);
 
 // Authentication Routes
 app.post('/api/auth/register', async (req, res) => {
@@ -81,6 +211,7 @@ app.post('/api/auth/register', async (req, res) => {
         email,
         username,
         password: hashedPassword,
+        provider: 'local'
       },
       select: {
         id: true,

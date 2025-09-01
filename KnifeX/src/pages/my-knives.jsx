@@ -4,7 +4,7 @@ import TradingBot from '../components/TradingBot';
 import ApiClient from '../utils/api';
 
 // Import all knife images
-const knifeImageModules = import.meta.glob('../assets/knives/*/*.png', { eager: true, as: 'url' });
+const knifeImageModules = import.meta.glob('../assets/knives/*/*.png', { eager: true, query: '?url', import: 'default' });
 
 // Helper function to get the correct image URL from Vite's imported modules
 const getKnifeImageUrl = (itemType, finishName) => {

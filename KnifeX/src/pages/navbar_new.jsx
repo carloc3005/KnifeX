@@ -37,7 +37,7 @@ export default function Navbar() {
         } else if (knifeType === "Shadow Daggers") {
             imageNamePrefix = "sd"; 
             folderName = "SD Knife";
-            specificImageName = "shadowdaggers-vanilla.png"; 
+            specificImageName = "sd-vanilla.png"; 
         } else if (knifeType === "Kukri Knife") {
             imageNamePrefix = "kukri";
             specificImageName = "kukri-vailla.png";

@@ -67,15 +67,20 @@ function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 debug-production">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden hero-section"
+        style={{ 
+          paddingTop: '5rem', // Fallback if Tailwind fails
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #111827 0%, #1e3a8a 50%, #581c87 100%)' // Fallback
+        }}>
         <div 
-          className="w-full min-h-screen bg-cover bg-center relative"
+          className="w-full h-screen bg-cover bg-center relative"
           style={{ backgroundImage: `url(${bannerImage})` }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-purple-900/70"></div>
-          <div className="relative z-10 flex items-center justify-center min-h-screen text-center px-4">
+          <div className="relative z-10 flex items-center justify-center h-full text-center px-4">
             <div className="max-w-6xl">
               <div className="animate-pulse mb-8">
                 <span className="text-2xl text-yellow-400 font-bold">⚡ LIVE NOW</span>

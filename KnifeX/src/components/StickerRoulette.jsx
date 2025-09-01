@@ -13,7 +13,7 @@ import stickerAustinLegends2025 from '../assets/stickers/austin-legends-2025-cap
 import stickerBattlefield2042 from '../assets/stickers/battlefield2042-capsule.png';
 import stickerBerlinLegends2019 from '../assets/stickers/berlin-legends-2019-capsule.png';
 import stickerBerlinMinorChallengers2019 from '../assets/stickers/berlin-minor-challengers-2019-capsule.png';
-import stickerBerlinReturnChallengersHoloFoil2019 from '../assets/stickers/berlin-returnchallengers(holo-foil)-2019-capsule.png';
+import stickerBerlinReturnChallengersHoloFoil2019 from '../assets/stickers/berlin-returnchallengers(holo-foil)-2019-capsule.png?url';
 import stickerBestiary from '../assets/stickers/bestiary-capsule.png';
 import stickerBrokenFang from '../assets/stickers/brokenfang-capsule.png';
 import stickerChicken from '../assets/stickers/chicken-capsule.png';
@@ -24,11 +24,11 @@ import stickerCopenhagenChallengers2024 from '../assets/stickers/copenhagen-chal
 import stickerCopenhagenLegends2024 from '../assets/stickers/copenhagen-legends-2024-capsule.png';
 import stickerCoppenhagenContenders2024 from '../assets/stickers/coppenhagen-contenders-2024-capsule.png';
 import stickerCs20 from '../assets/stickers/cs20-capsule.png';
-import stickerDreamhackLegendsFoil2015 from '../assets/stickers/dreamhack-legends(foil)-2015-capsule.png';
+import stickerDreamhackLegendsFoil2015 from '../assets/stickers/dreamhack-legends(foil)-2015-capsule.png?url';
 import stickerDreamhackLegends2015 from '../assets/stickers/dreamhack-legends-2015-capsule.png';
 import stickerEnfu from '../assets/stickers/enfu-capsule.png';
 import stickerEslLegends2014 from '../assets/stickers/esl-legends-2014-capsule.png';
-import stickerEslOneCologneLegendsFoil2015 from '../assets/stickers/esl-onecolgne-legends(foil)-2015-capsule.png';
+import stickerEslOneCologneLegendsFoil2015 from '../assets/stickers/esl-onecolgne-legends(foil)-2015-capsule.png?url';
 import stickerEslOneCologne2014 from '../assets/stickers/esl-onecologne-2014-capsule.png';
 import stickerEslOneKatowice2015 from '../assets/stickers/esl-onekatowice-2015-capsule.png';
 import stickerEspionage from '../assets/stickers/espionage-sticker-capsule.png';
@@ -36,13 +36,13 @@ import stickerFeralPredators from '../assets/stickers/feralpredators-capsule.png
 import stickerHalfLifeAlyx from '../assets/stickers/halflifealyx-capsule.png';
 import stickerHalo from '../assets/stickers/halo-capsule.png';
 import stickerKatowice2019 from '../assets/stickers/katowice-2019-capsule.png';
-import stickerKatowice2019ChallengersHoloFoil2019 from '../assets/stickers/katowice-2019-challengers(holo-foil)-2019-capsule.png';
-import stickerKatowiceReturningChallengersHoloFoil2019 from '../assets/stickers/katowice-returningchallengers(holo-foil)-2019-capsule.png';
+import stickerKatowice2019ChallengersHoloFoil2019 from '../assets/stickers/katowice-2019-challengers(holo-foil)-2019-capsule.png?url';
+import stickerKatowiceReturningChallengersHoloFoil2019 from '../assets/stickers/katowice-returningchallengers(holo-foil)-2019-capsule.png?url';
 import stickerKrakowChallengers2017 from '../assets/stickers/krakow-challengers-2017-capsule.png';
-import stickerKrakowLegendsHoloFoil2017 from '../assets/stickers/krakow-legends(holo-foil)-2017-capsule.png';
+import stickerKrakowLegendsHoloFoil2017 from '../assets/stickers/krakow-legends(holo-foil)-2017-capsule.png?url';
 import stickerLondonLegends2018 from '../assets/stickers/london-legends-2018-capsule.png';
-import stickerLondonMinorChallengersHoloFoil2018 from '../assets/stickers/london-minorchallengers(holo-foil)-2018-capsule.png';
-import stickerLondonReturningChallengersHoloFoil2018 from '../assets/stickers/london-returningchallengers(holo-foil)-2018-capsule.png';
+import stickerLondonMinorChallengersHoloFoil2018 from '../assets/stickers/london-minorchallengers(holo-foil)-2018-capsule.png?url';
+import stickerLondonReturningChallengersHoloFoil2018 from '../assets/stickers/london-returningchallengers(holo-foil)-2018-capsule.png?url';
 import stickerMlgColumbusChallengers2016 from '../assets/stickers/mlg-columbus-challengers-2016-capsule.png';
 import stickerOperationRiptide from '../assets/stickers/operationriptide-capsule.png';
 import stickerParisChallenger2023 from '../assets/stickers/paris-challenger-2023-capsule.png';
@@ -170,10 +170,23 @@ const StickerRoulette = () => {
   const [spinning, setSpinning] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [rouletteItems, setRouletteItems] = useState([]);
+  const [imageErrors, setImageErrors] = useState(new Set());
   const rouletteStripRef = useRef(null);
+
+  // Log any images that fail to load for debugging
+  const handleImageError = (itemName, imageSrc) => {
+    console.error(`Failed to load image for: ${itemName}`, imageSrc);
+    setImageErrors(prev => new Set([...prev, itemName]));
+  };
 
   useEffect(() => {
     if (stickersArr.length === 0) return; // Don't run if stickersArr is empty
+
+    // Validate image imports
+    const invalidImages = stickersArr.filter(item => !item.image || item.image === '');
+    if (invalidImages.length > 0) {
+      console.warn('Items with invalid image imports:', invalidImages.map(item => item.name));
+    }
 
     const shuffledUniqueItems = [...stickersArr].sort(() => Math.random() - 0.5);
 
@@ -265,7 +278,18 @@ const StickerRoulette = () => {
               className="flex-shrink-0 h-56 flex flex-col items-center justify-center p-3 bg-slate-800 rounded-md" 
               style={{ width: `${ROULETTE_ITEM_CONTENT_WIDTH}px`, margin: `0 ${ROULETTE_ITEM_MARGIN_X}px` }}
             >
-              <img src={item.image} alt={item.name} className="h-36 object-contain" /> 
+              <img 
+                src={item.image} 
+                alt={item.name} 
+                className="h-36 object-contain"
+                onError={(e) => {
+                  handleImageError(item.name, e.target.src);
+                  e.target.style.display = 'none';
+                }}
+                onLoad={() => {
+                  // Uncomment for debugging: console.log(`Successfully loaded: ${item.name}`);
+                }}
+              /> 
               <p className="text-xs text-slate-300 text-center mt-2 font-medium w-full px-1 break-words">{formatStickerName(item.name)}</p> 
             </div>
           ))}
@@ -288,6 +312,10 @@ const StickerRoulette = () => {
               src={selectedItem.image}
               alt={selectedItem.name}
               className="h-36 sm:h-40 w-auto object-contain mx-auto my-4 rounded-md"
+              onError={(e) => {
+                console.error(`Failed to load modal image for: ${selectedItem.name}`, e.target.src);
+                e.target.style.display = 'none';
+              }}
             />
             <button
               onClick={closeModal}

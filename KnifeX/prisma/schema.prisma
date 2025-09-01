@@ -15,9 +15,11 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   username  String   @unique
-  password  String   // hashed password
+  password  String?  // hashed password (nullable for OAuth users)
   steamId   String?  @unique // optional Steam ID for Steam integration
   avatar    String?  // profile picture URL
+  googleId  String?  @unique // Google OAuth ID
+  provider  String?  @default("local") // Authentication provider (local, google, etc.)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
