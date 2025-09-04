@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: system-ui, sans-serif;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #111827;
+  }
+  
+  #root {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Remove any default spacing */
+  * {
+    box-sizing: border-box;
+  }
+  
+  nav, main, section {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer components {
+  .nav-debug {
+    @apply bg-red-500 border-4 border-yellow-400;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded;
+  }
+}
+
+/* Fallback styles if Tailwind doesn't load */
+.fallback-nav {
+  background-color: #1f2937 !important;
+  padding: 1rem !important;
+  position: relative !important;
+  z-index: 9999 !important;
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.fallback-text {
+  color: white !important;
+  font-size: 1rem !important;
+}
+
+.fallback-button {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.25rem !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+/* Ensure no gaps between navbar and content */
+nav {
+  margin-bottom: 0 !important;
+}
+
+section {
+  margin-top: 0 !important;
+}
+
+/* Debug class to verify CSS loading */
+.debug-production {
+  border: 2px solid red !important;
+  background-color: rgba(255, 0, 0, 0.1) !important;
+}
