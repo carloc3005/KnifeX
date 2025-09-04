@@ -43,24 +43,18 @@ export default function Navbar() {
         } else if (knifeType === "Kukri Knife") {
             imageNamePrefix = "kukri";
             specificImageName = "kukri-vailla.png";
+        } else if (knifeType === "Karambit") {
+            imageNamePrefix = "karambit";
+            specificImageName = "karambit-vanilla.png"; // Now lowercase
+        } else if (knifeType === "Huntsman Knife") {
+            imageNamePrefix = "huntsman";
+            specificImageName = "huntsman-vanilla.png"; // Now lowercase
         }
 
         const imageName = specificImageName || `${imageNamePrefix}-vanilla.png`;
-        const relativeAssetPath = `../assets/knives/${folderName}/${imageName}`;
-
-        try {
-            const imageUrl = new URL(relativeAssetPath, import.meta.url).href;
-            return imageUrl;
-        } catch (error) {
-            console.error(
-                `Error constructing image URL for: ${knifeType}. \n` +
-                `Attempted Path: ${relativeAssetPath}\n` +
-                `Base URL (import.meta.url): ${import.meta.url}\n` +
-                `Folder Name: ${folderName}, Image Name: ${imageName}\n` +
-                `Error: ${error.message}`
-            );
-            return '/placeholder-knife-image.png'; 
-        }
+        
+        // Use public folder path for reliable access
+        return `/knives/${encodeURIComponent(folderName)}/${encodeURIComponent(imageName)}`;
     };
 
     return (
@@ -124,6 +118,9 @@ export default function Navbar() {
                                                             src={getKnifeImagePath(knifeType)} 
                                                             alt={`${knifeType} Vanilla`} 
                                                             className="h-4 w-auto mr-2" 
+                                                            onError={(e) => {
+                                                                e.target.style.display = 'none';
+                                                            }}
                                                         />
                                                         {knifeType}
                                                     </Link>

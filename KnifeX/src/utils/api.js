@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.PROD 
+  ? '/.netlify/functions'
+  : 'http://localhost:3001/api';
 
 class ApiClient {
   constructor() {
@@ -49,9 +51,9 @@ class ApiClient {
 
   // Auth methods
   async register(userData) {
-    const response = await this.request('/auth/register', {
+    const response = await this.request('/auth', {
       method: 'POST',
-      body: userData,
+      body: { action: 'register', ...userData },
     });
     
     if (response.token) {
@@ -62,9 +64,9 @@ class ApiClient {
   }
 
   async login(credentials) {
-    const response = await this.request('/auth/login', {
+    const response = await this.request('/auth', {
       method: 'POST',
-      body: credentials,
+      body: { action: 'login', ...credentials },
     });
     
     if (response.token) {
@@ -80,7 +82,7 @@ class ApiClient {
 
   // User methods
   async getProfile() {
-    return this.request('/user/profile');
+    return this.request('/user');
   }
 
   // Inventory methods
@@ -89,7 +91,7 @@ class ApiClient {
   }
 
   async addToInventory(knifeData) {
-    return this.request('/inventory/add', {
+    return this.request('/inventory', {
       method: 'POST',
       body: knifeData,
     });
