@@ -51,9 +51,15 @@ class ApiClient {
 
   // Auth methods
   async register(userData) {
-    const response = await this.request('/auth', {
+    // Different endpoints for production (Netlify) vs development
+    const endpoint = import.meta.env.PROD ? '/auth' : '/auth/register';
+    const body = import.meta.env.PROD 
+      ? { action: 'register', ...userData }
+      : userData;
+
+    const response = await this.request(endpoint, {
       method: 'POST',
-      body: { action: 'register', ...userData },
+      body,
     });
     
     if (response.token) {
@@ -64,9 +70,15 @@ class ApiClient {
   }
 
   async login(credentials) {
-    const response = await this.request('/auth', {
+    // Different endpoints for production (Netlify) vs development
+    const endpoint = import.meta.env.PROD ? '/auth' : '/auth/login';
+    const body = import.meta.env.PROD 
+      ? { action: 'login', ...credentials }
+      : credentials;
+
+    const response = await this.request(endpoint, {
       method: 'POST',
-      body: { action: 'login', ...credentials },
+      body,
     });
     
     if (response.token) {

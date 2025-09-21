@@ -45,10 +45,10 @@ export default function Navbar() {
             specificImageName = "kukri-vailla.png";
         } else if (knifeType === "Karambit") {
             imageNamePrefix = "karambit";
-            specificImageName = "karambit-vanilla.png"; // Now lowercase
+            specificImageName = "karambit-Vanilla.png"; // Fixed capitalization
         } else if (knifeType === "Huntsman Knife") {
             imageNamePrefix = "huntsman";
-            specificImageName = "huntsman-vanilla.png"; // Now lowercase
+            specificImageName = "huntsman-Vanilla.png"; // Fixed capitalization
         }
 
         const imageName = specificImageName || `${imageNamePrefix}-vanilla.png`;
