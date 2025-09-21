@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import GoogleLoginButton from '../components/GoogleLoginButton';
 import backgroundImage from "../assets/images/login-signup.png";
 
 export default function Login() {
@@ -133,19 +132,6 @@ export default function Login() {
 							</Link>
 						</div>
 					</form>
-
-					<div className="relative my-6">
-						<div className="absolute inset-0 flex items-center" aria-hidden="true">
-							<div className="w-full border-t border-gray-300"></div>
-						</div>
-						<div className="relative flex justify-center text-sm">
-							<span className="px-2 bg-white text-gray-500">or</span>
-						</div>
-					</div>
-
-					<div>
-						<GoogleLoginButton />
-					</div>
 
 					<p className="mt-8 text-center text-sm text-gray-600">
 						Don't have an account? <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">Sign up for free</Link>

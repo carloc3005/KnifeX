@@ -1,24 +1,22 @@
 import React from 'react';
 
-const GoogleLoginButton = ({ className = "" }) => {
+const GoogleLoginButton = () => {
   const handleGoogleLogin = () => {
-    // Determine the base URL based on environment
-    const baseUrl = import.meta.env.PROD 
-      ? 'https://knife-campsvr9w-carlo-castillos-projects-1517593b.vercel.app'
-      : 'http://localhost:5173';
-    
-    // Redirect to Google OAuth
-    window.location.href = `${baseUrl}/api/auth/google`;
+    // For now, this is a placeholder. You can implement actual Google OAuth later
+    console.log('Google login clicked');
+    alert('Google OAuth integration coming soon!');
   };
 
   return (
     <button
+      type="button"
       onClick={handleGoogleLogin}
-      className={`flex items-center justify-center gap-3 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-50 transition-colors ${className}`}
+      className="w-full flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
     >
-      <svg 
-        className="w-5 h-5" 
+      <svg
+        className="w-5 h-5 mr-2"
         viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
       >
         <path
           fill="#4285F4"
@@ -37,7 +35,7 @@ const GoogleLoginButton = ({ className = "" }) => {
           d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
         />
       </svg>
-      <span className="text-gray-700 font-medium">Continue with Google</span>
+      Continue with Google
     </button>
   );
 };

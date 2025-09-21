@@ -2,6 +2,29 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Helper function to get the current market price for a knife
+async function getKnifeMarketPrice(itemType, finishName, condition, statTrak = false) {
+  try {
+    const priceData = await prisma.knifePrice.findUnique({
+      where: {
+        itemType_finishName_condition_statTrak: {
+          itemType,
+          finishName,
+          condition,
+          statTrak
+        }
+      }
+    });
+    
+    // Return the current price if found, otherwise return a default price
+    return priceData ? priceData.currentPrice : 100.00;
+  } catch (error) {
+    console.error('Error fetching knife price:', error);
+    // Return a default price if there's an error
+    return 100.00;
+  }
+}
+
 // Starter knives that new users will receive
 const starterKnives = [
   {
@@ -79,13 +102,24 @@ export async function addStarterKnivesToUser(userId) {
     const inventoryEntries = [];
     
     for (const knife of starterKnivesFromDb) {
+      const condition = 'Field-Tested'; // Give them decent condition starter knives
+      const floatValue = 0.25 + Math.random() * 0.15; // Random float between 0.25-0.40 (Field-Tested range)
+      
+      // Get the actual market price for this specific knife
+      const marketPrice = await getKnifeMarketPrice(
+        knife.itemType, 
+        knife.finishName, 
+        condition, 
+        knife.statTrak
+      );
+      
       const inventoryEntry = await prisma.userInventory.create({
         data: {
           userId: userId,
           knifeId: knife.id,
-          condition: 'Field-Tested', // Give them decent condition starter knives
-          floatValue: 0.25 + Math.random() * 0.15, // Random float between 0.25-0.40 (Field-Tested range)
-          price: 50 + Math.random() * 100, // Random price between $50-150 for starter knives
+          condition: condition,
+          floatValue: floatValue,
+          price: marketPrice, // Use actual market price instead of random
           isForTrade: true, // Make them available for trading
           acquiredAt: new Date()
         }

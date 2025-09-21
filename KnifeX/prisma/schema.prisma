@@ -43,6 +43,7 @@ model Knife {
   statTrak    Boolean  @default(false)
   rarity      String   // e.g., "Covert", "Classified"
   caseSources String[] // array of case names where this knife can be found
+  basePrice   Float?   // base market price for this knife (Field-Tested condition)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

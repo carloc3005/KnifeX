@@ -8,41 +8,64 @@ const AuthCallback = () => {
   const { login } = useAuth();
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    
-    if (token) {
-      // Store the token and decode user info
-      localStorage.setItem('token', token);
-      
+    const handleAuthCallback = async () => {
       try {
-        // Decode JWT to get user info (you might want to validate this on the server)
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const user = {
-          id: payload.userId,
-          email: payload.email,
-          username: payload.username
-        };
-        
-        // Update auth context
-        login(user, token);
-        
-        // Redirect to dashboard or home
-        navigate('/');
+        // Get the authorization code from URL parameters
+        const code = searchParams.get('code');
+        const error = searchParams.get('error');
+
+        if (error) {
+          console.error('OAuth error:', error);
+          navigate('/login?error=oauth_failed');
+          return;
+        }
+
+        if (code) {
+          // Send the code to your backend to exchange for tokens
+          const response = await fetch('/api/auth/oauth/callback', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.token) {
+            // Store the token and user data
+            localStorage.setItem('token', data.token);
+            login(data.user, data.token);
+            navigate('/'); // Redirect to home page
+          } else {
+            throw new Error(data.message || 'OAuth authentication failed');
+          }
+        } else {
+          navigate('/login?error=no_code');
+        }
       } catch (error) {
-        console.error('Error processing OAuth callback:', error);
+        console.error('Auth callback error:', error);
         navigate('/login?error=oauth_failed');
       }
-    } else {
-      // No token received, redirect to login with error
-      navigate('/login?error=oauth_failed');
-    }
-  }, [searchParams, login, navigate]);
+    };
+
+    handleAuthCallback();
+  }, [searchParams, navigate, login]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-        <p className="mt-4 text-white">Completing sign in...</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            Authenticating...
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Please wait while we complete your login.
+          </p>
+          <div className="mt-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          </div>
+        </div>
       </div>
     </div>
   );

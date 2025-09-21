@@ -159,6 +159,32 @@ const knifePrices = [
     avgPrice: 655.00,
     volume: 28,
     trend: 'FALLING'
+  },
+  
+  // Additional prices for starter knives
+  {
+    itemType: 'Butterfly Knife',
+    finishName: 'Fade',
+    condition: 'Field-Tested',
+    statTrak: false,
+    currentPrice: 480.25,
+    lowPrice: 460.00,
+    highPrice: 510.00,
+    avgPrice: 485.00,
+    volume: 42,
+    trend: 'STABLE'
+  },
+  {
+    itemType: 'M9 Bayonet',
+    finishName: 'Tiger Tooth',
+    condition: 'Field-Tested',
+    statTrak: false,
+    currentPrice: 520.75,
+    lowPrice: 500.00,
+    highPrice: 550.00,
+    avgPrice: 525.00,
+    volume: 35,
+    trend: 'RISING'
   }
 ];
 
